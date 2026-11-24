@@ -1,7 +1,7 @@
-// PRESENTACIÓN: traduce HTTP <-> servicio (código de estado + JSON)
+
+// PRESENTACIÓN: traduce HTTP <-> servicio.
 const service = require('../services/reservas.service');
 
-// GET /reservas y GET /reservas?huesped=Ana
 async function listar(req, res) {
   const filtros = { huesped: req.query.huesped };
   res.status(200).json(await service.listar(filtros));
@@ -12,17 +12,21 @@ async function obtener(req, res) {
 }
 
 async function crear(req, res) {
-  const nueva = await service.crear(req.body);
+  console.log('BODY RECIBIDO:', req.body);
+
+  const nueva = await service.crear(req.body, req.headers.authorization);
   res.status(201).location(`${req.baseUrl}/${nueva.id}`).json(nueva);
 }
 
 async function actualizar(req, res) {
-  res.status(200).json(await service.actualizar(req.params.id, req.body));
+  res.status(200).json(
+    await service.actualizar(req.params.id, req.body, req.headers.authorization)
+  );
 }
 
 async function eliminar(req, res) {
   await service.eliminar(req.params.id);
-  res.status(204).end(); // 204 No Content: éxito, sin cuerpo
+  res.status(204).end();
 }
 
 module.exports = { listar, obtener, crear, actualizar, eliminar };
